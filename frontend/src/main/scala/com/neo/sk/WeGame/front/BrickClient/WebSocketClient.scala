@@ -11,8 +11,7 @@ case class WebSocketClient(
                             connectSuccessCallback: Event => Unit,
                             connectErrorCallback:ErrorEvent => Unit,
                             messageHandler:Protocol.GameMessage => Unit,
-                            closeCallback:Event => Unit,
-                            replay:Boolean = false
+                            closeCallback:Event => Unit
                           ) {
   private var wsSetup = false
 

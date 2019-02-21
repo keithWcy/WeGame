@@ -8,7 +8,7 @@ import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.{ErrorEvent, Event}
 
 class GameHolder {
-  var window = Point(dom.window.innerWidth.toInt, dom.window.innerHeight.toInt)
+  var window = Point(1200, 600)
   private[this] val GameCanvas = dom.document.getElementById("GameView").asInstanceOf[Canvas]
   private[this] val gameCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val BpCanvas = dom.document.getElementById("backgroundView").asInstanceOf[Canvas]

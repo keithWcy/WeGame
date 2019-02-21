@@ -42,7 +42,7 @@ trait brickService {
           'roomId.as[Long].?
         ){
           case (playerId, playerName,roomIdOpt) =>
-            redirect(s"/brick#/playGame/${playerId}/${URLEncoder.encode(playerName,"utf-8")}/${roomIdOpt.getOrElse(0l)}",
+            redirect(s"/WeGame/brick#/playGame/${playerId}/${URLEncoder.encode(playerName,"utf-8")}/${roomIdOpt.getOrElse(0l)}",
               StatusCodes.SeeOther
             )
         }

@@ -15,7 +15,7 @@ class GamePage(playerId:String,playerName:String,roomId:Long) extends Page {
   def init()={
     val gameHolder = new GameHolder
     gameHolder.init()
-    gameHolder.joinGame(playerId,playerName,roomId)
+    //gameHolder.joinGame(playerId,playerName,roomId)
   }
   override def render: Elem = {
       ShortCut.scheduleOnce(() =>init(),0)
