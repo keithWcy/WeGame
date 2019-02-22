@@ -18,7 +18,6 @@ class IndexPage extends Page {
   }
 
   override def render: Elem ={
-    println("index")
     <div>
       {PlayButton}
       {LoginButton}

@@ -8,14 +8,14 @@ import scala.xml.Elem
 
 
 class GamePage(playerId:String,playerName:String,roomId:Long) extends Page {
-  private val gameView = <canvas id ="GameView" tabindex="1"></canvas>
-  private val backgroundView = <canvas id="backgroundView" tabindex="2" ></canvas>
+  private val gameView = <canvas id ="GameView" ></canvas>
+  private val backgroundView = <canvas id="backgroundView" ></canvas>
 
 
   def init()={
     val gameHolder = new GameHolder
     gameHolder.init()
-    //gameHolder.joinGame(playerId,playerName,roomId)
+    gameHolder.joinGame(playerId,playerName,roomId)
   }
   override def render: Elem = {
       ShortCut.scheduleOnce(() =>init(),0)

@@ -5,9 +5,12 @@ import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import com.neo.sk.WeGame.core.{RoomManager, UserManager}
 import com.neo.sk.WeGame.http.HttpService
-
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors, TimerScheduler}
+import akka.actor.typed.{ActorRef, Behavior}
 import scala.language.postfixOps
+import akka.actor.typed.scaladsl.adapter._
 
 /**
   * User: Taoz
@@ -20,10 +23,14 @@ object Boot extends HttpService {
   import com.neo.sk.WeGame.common.AppSettings._
 
 
-  override implicit val system = ActorSystem("hiStream", config)
+  override implicit val system = ActorSystem("WeGame", config)
   // the executor should not be the default dispatcher.
   override implicit val executor = system.dispatchers.lookup("akka.actor.my-blocking-dispatcher")
   override implicit val materializer = ActorMaterializer()
+  override implicit val scheduler = system.scheduler
+
+  val roomManager: ActorRef[RoomManager.Command] =system.spawn(RoomManager.behaviors,"roomManager")
+  val userManager:ActorRef[UserManager.Command] = system.spawn(UserManager.create(),"userManager")
 
   override val timeout = Timeout(20 seconds) // for actor asks
 

@@ -11,7 +11,7 @@ import akka.util.Timeout
 import scala.concurrent.ExecutionContextExecutor
 import akka.http.scaladsl.server.Directives._
 
-trait brickService {
+trait brickService extends gameService {
 
   import io.circe.generic.auto._
   import io.circe.syntax._
@@ -46,7 +46,7 @@ trait brickService {
               StatusCodes.SeeOther
             )
         }
-      }
+      }~gameRoute
     }
   }
 }
