@@ -1,18 +1,16 @@
 package com.neo.sk.WeGame.core
 
-import java.awt.event.KeyEvent
-
-import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.{Behaviors, TimerScheduler}
 import com.neo.sk.WeGame.brick.{GameProtocol, Protocol}
 import com.neo.sk.WeGame.brickServer.GameServer
 import com.neo.sk.WeGame.core.UserActor.JoinRoomSuccess
-import org.seekloud.byteobject.MiddleBufferInJvm
-import org.seekloud.byteobject.ByteObject._
-import org.slf4j.LoggerFactory
 import com.neo.sk.WeGame.brick.GameConfig._
-import com.neo.sk.WeGame.brick.Protocol.{KC, MP}
-import com.neo.sk.WeGame._
+import scala.language.postfixOps
+import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors, TimerScheduler}
+import akka.actor.typed.scaladsl.Behaviors
+import org.slf4j.LoggerFactory
+import org.seekloud.byteobject.ByteObject._
+import org.seekloud.byteobject.MiddleBufferInJvm
 import scala.concurrent.duration._
 import scala.collection.mutable
 
@@ -53,7 +51,7 @@ object RoomActor {
           val playermap = mutable.HashMap[String,String]()
           grid.setRoomId(roomId)
           timer.startPeriodicTimer(SyncTimeKey, Sync, frameRate millis)
-          idle(roomId, grid, playermap,0l)
+          idle(roomId, grid, playermap,subscribersMap,0l)
       }
     }
   }
@@ -62,6 +60,7 @@ object RoomActor {
             roomId:Long,
             grid:GameServer,
             playerMap:mutable.HashMap[String,String], // [PlayId,nickName]  记录房间玩家数（包括等待复活） (仅人类，包括在玩及等待复活)
+            subscribersMap:mutable.HashMap[String,ActorRef[UserActor.Command]],
             tickCount:Long
           )(
             implicit timer:TimerScheduler[Command],
@@ -71,9 +70,12 @@ object RoomActor {
       msg match {
         case JoinRoom(playerInfo, roomId, userActor) =>
           playerMap.put(playerInfo.playerId,playerInfo.playerName)
-          val position = if(playerMap.keys.size==1) 0 else 1
+          subscribersMap.put(playerInfo.playerId, userActor)
+          val position = if(playerMap.keys.size==1) 0 else 1 //0表示第一个加入，1表示第二个加入
           userActor ! JoinRoomSuccess(roomId, ctx.self)
           grid.addPlayer(playerInfo.playerId, playerInfo.playerName,position)
+          dispatchTo(subscribersMap)(playerInfo.playerId, Protocol.Id(playerInfo.playerId))
+          dispatchTo(subscribersMap)(playerInfo.playerId,Protocol.RoomId(roomId))
           Behaviors.same
 
         case RoomActor.KeyR(id, keyCode,frame) =>
@@ -83,8 +85,16 @@ object RoomActor {
           Behaviors.same
 
         case Sync =>
+          grid.getSubscribersMap(subscribersMap)
           grid.update()
-          Behaviors.same
+//          if(tickCount % 20 == 0){
+//            val gridData = grid.getAllGridData
+//            dispatch(subscribersMap)(gridData)
+//          }
+          idle(roomId, grid, playerMap, subscribersMap, tickCount + 1)
+
+        case x =>
+          Behaviors.unhandled
       }
     }
   }

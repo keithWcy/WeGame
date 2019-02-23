@@ -1,6 +1,6 @@
 package com.neo.sk.WeGame.front.BrickClient
 
-import com.neo.sk.WeGame.brick.Brick
+import com.neo.sk.WeGame.brick.{Brick, Protocol}
 import com.neo.sk.WeGame.brick.Protocol.GridDataSync
 import com.neo.sk.WeGame.brick.GameConfig._
 
@@ -17,6 +17,25 @@ class GameClient extends Brick{
     playerMap = data.playerDetails.map(s => s.id -> s).toMap
     brickList = data.brickDetails
     ballList = data.ballDetails
+  }
+
+
+  def getGridData(id:String) = {
+    myId = id
+    var playerDetails: List[player] = Nil
+    //    var brickDetails:List[brick] = Nil
+    //    var ballDetails:List[ball] = Nil
+    playerMap.foreach{
+      case (_,player) =>
+        playerDetails ::= player
+
+    }
+    Protocol.GridDataSync(
+      frameCount,
+      playerDetails,
+      brickList,
+      ballList
+    )
   }
 
 }

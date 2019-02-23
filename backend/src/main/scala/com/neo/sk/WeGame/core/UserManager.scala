@@ -11,6 +11,8 @@ import akka.util.ByteString
 import com.neo.sk.WeGame.brick.{GameProtocol, Protocol}
 import org.slf4j.LoggerFactory
 
+
+
 object UserManager {
 
 

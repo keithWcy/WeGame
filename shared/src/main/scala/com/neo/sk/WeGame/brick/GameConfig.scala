@@ -45,8 +45,8 @@ object GameConfig {
                    y:Int,
                    targetX:Int,//弹球运动方向
                    targety:Int,
-                   radius:Int=15,
-                   IsDraw:Boolean = false
+                   radius:Int=20,
+                   IsDraw:Boolean = true
                  )
 
 }

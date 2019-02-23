@@ -1,18 +1,18 @@
 package com.neo.sk.WeGame.core
 
+import com.neo.sk.WeGame.brick.Protocol.{KC, MP}
+import com.neo.sk.WeGame.brick.{GameProtocol, Protocol}
+import com.neo.sk.WeGame.Boot.roomManager
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, StashBuffer, TimerScheduler}
 import akka.stream.OverflowStrategy
+import org.slf4j.LoggerFactory
 import akka.stream.scaladsl.Flow
 import akka.stream.typed.scaladsl.{ActorSink, ActorSource}
-import com.neo.sk.WeGame.brick.Protocol.{KC, MP}
-import com.neo.sk.WeGame.brick.{GameProtocol, Protocol}
 import org.seekloud.byteobject.ByteObject._
 import org.seekloud.byteobject.MiddleBufferInJvm
-import org.slf4j.LoggerFactory
-import com.neo.sk.WeGame.Boot.roomManager
-
 import scala.concurrent.duration._
+import scala.language.implicitConversions
 
 object UserActor {
 
@@ -199,6 +199,7 @@ object UserActor {
 
         case UserLeft(actor) =>
           ctx.unwatch(actor)
+          println("actor has died,so user left")
           roomManager ! RoomManager.LeftRoom(userInfo)
           Behaviors.stopped
 

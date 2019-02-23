@@ -8,8 +8,9 @@ import scala.xml.Elem
 
 
 class GamePage(playerId:String,playerName:String,roomId:Long) extends Page {
-  private val gameView = <canvas id ="GameView" ></canvas>
-  private val backgroundView = <canvas id="backgroundView" ></canvas>
+  private val gameView = <canvas id ="GameView" tabIndex ="1"></canvas>
+  private val backgroundView = <canvas id="backgroundView" tabIndex ="2"></canvas>
+  private val InfoView = <canvas id="InfoView" tabIndex="3"> </canvas>
 
 
   def init()={
@@ -22,6 +23,7 @@ class GamePage(playerId:String,playerName:String,roomId:Long) extends Page {
     <div>
       {gameView}
       {backgroundView}
+      {InfoView}
     </div>
   }
 }

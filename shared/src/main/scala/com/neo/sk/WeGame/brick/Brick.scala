@@ -11,6 +11,7 @@ trait Brick {
   def info(msg: String): Unit
 
   var myId = ""
+  var roomId = 0l
   val random = new Random(System.nanoTime())
   var frameCount = 0
 
@@ -33,15 +34,11 @@ trait Brick {
   }
 
   private[this] def updateBricks() = {
-    checkCrash()
-    brickList = brickList.map{mass=>
-      mass
-    }
+
   }
   private[this] def updateBalls()={
 
   }
-
 
   def checkCrash()={
     checkBalltoBound()
@@ -61,32 +58,6 @@ trait Brick {
 
   }
 
-
-  def getGridData(id:String) = {
-    myId = id
-    var playerDetails: List[player] = Nil
-    var brickDetails:List[brick] = Nil
-    var ballDetails:List[ball] = Nil
-    playerMap.foreach{
-      case (_,player) =>
-          playerDetails ::= player
-
-    }
-    brickList.foreach{
-      case brick =>
-       brickDetails::=brick
-    }
-    ballList.foreach{
-      case ball =>
-        ballDetails::=ball
-    }
-    Protocol.GridDataSync(
-      frameCount,
-      playerDetails,
-      brickDetails,
-      ballDetails
-    )
-  }
 
 
 }

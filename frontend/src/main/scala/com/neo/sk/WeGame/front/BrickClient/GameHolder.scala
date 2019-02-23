@@ -11,18 +11,21 @@ import com.neo.sk.WeGame.brick.Protocol
 import org.scalajs.dom.ext.KeyCode
 
 class GameHolder {
-  var window = Point(dom.window.innerWidth.toInt, dom.window.innerHeight.toInt)
+  var window = Point(1200,600)
   private[this] val GameCanvas = dom.document.getElementById("GameView").asInstanceOf[Canvas]
   private[this] val gameCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val BpCanvas = dom.document.getElementById("backgroundView").asInstanceOf[Canvas]
   private[this] val BpCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+  private[this] val InfoCanvas = dom.document.getElementById("backgroundView").asInstanceOf[Canvas]
+  private[this] val InfoCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val drawGameView=DrawGame(gameCtx,GameCanvas,window)
   private[this] val drawBpView=DrawGame(BpCtx,BpCanvas,window)
+  private[this] val drawInfo=DrawGame(InfoCtx,InfoCanvas,window)
   private[this] var gameState = 0 //0为等待，1为玩游戏，2为游戏结束
 
   val grid = new GameClient()
 
-  var myId = ""
+  //var myId = ""
   var nextInt = 0
   var nextFrame = 0
   var mouseInFlame = false
@@ -86,10 +89,13 @@ class GameHolder {
 
   def draw(offsetTime:Long)={
     if(webSocketClient.getWsState){
-      val data=grid.getGridData(myId)
+      val data=grid.getGridData(grid.myId)
+      val myName=data.playerDetails.filter(_.id==grid.myId).map(_.name).toString()
+      val othername=data.playerDetails.filterNot(_.id==grid.myId).map(_.name).toString()
       drawBpView.clearCanvas()
       drawBpView.drawBackGround()
-      drawGameView.drawGrid(myId,data,offsetTime,firstCome)
+      drawGameView.drawGrid(grid.myId,data,offsetTime,firstCome)
+      drawInfo.drawRoomInfo(grid.roomId.toString,myName,othername)
     }
     else{
       drawBpView.clearCanvas()
@@ -151,10 +157,17 @@ class GameHolder {
   }
   private def wsMessageHandler(data:GameMessage):Unit = {
     data match{
+      case Protocol.Id(id) =>
+        grid.myId = id
+
+
       case data: Protocol.GridDataSync =>
         println("获取全量数据  get ALL GRID===================")
         syncGridData = Some(data)
         justSynced = true
+
+      case Protocol.RoomId(id) =>
+        grid.roomId = id
     }
   }
 

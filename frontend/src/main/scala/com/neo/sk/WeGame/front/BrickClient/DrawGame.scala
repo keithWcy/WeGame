@@ -13,8 +13,8 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
                     size:Point
                    ) {
 
-  val width=dom.window.innerWidth.toInt
-  val height=dom.window.innerHeight.toInt
+  val width=size.x
+  val height=size.y
   this.canvas.width= size.x
   this.canvas.height= size.y
 
@@ -47,26 +47,39 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
 
   def drawBackGround()={
     ctx.strokeStyle=Color.Black.toString()
-    ctx.strokeRect(width/2-200,height/2-280,400,550)
+    ctx.strokeRect(width/2-200,height/2-260,400,520)
     ctx.fillStyle="rgb(240,248,255)"
-    ctx.fillRect(width/2-200,height/2-280,400,550)
+    ctx.fillRect(width/2-200,height/2-260,400,520)
   }
+
   def clearCanvas()={
     ctx.fillStyle = Color.White.toString()
     ctx.fillRect(0, 0, this.canvas.width , this.canvas.height )
+  }
+
+  def drawRoomInfo(roomId:String,myName:String,otherName:String)={
+    ctx.fillStyle = Color.Black.toString()
+    ctx.font= "24px Helvetica"
+    ctx.fillText(s"房间号：$roomId",300,100)
+    ctx.fillText(s"Your Name:$myName",300,150)
+    ctx.fillText(s"Oppo Name:$otherName",300,200)
   }
 
   def drawGrid(uid:String,data:GridDataSync,OffsetTime:Long,firstCome:Boolean)={
     clearCanvas()
     val bricks=data.brickDetails
     val balls=data.ballDetails
-    println("drawGrid")
-
+    ctx.strokeStyle=Color.Black.toString()
+    ctx.strokeRect(width/2-200,height/2-260,400,520)
+    ctx.fillStyle="rgb(240,248,255)"
+    ctx.fillRect(width/2-200,height/2-260,400,520)
     bricks.groupBy(_.id).foreach{
-      i=> if(i._1==uid) {
+      i=>
+        println(s"uid:$uid brickid:${i._1}")
+        if(i._1==uid) {
         ctx.fillStyle = Color.Blue.toString()
         i._2.foreach { i =>
-          ctx.font = "10px Helvetica"
+          ctx.font = "18px Helvetica"
           ctx.fillText(i.count.toString,i.x, i.y)
           ctx.strokeStyle = Color.Blue.toString()
           ctx.strokeRect(i.x, i.y, i.length, i.length)
@@ -75,6 +88,8 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
         else {
           ctx.fillStyle = Color.Red.toString()
           i._2.foreach { i =>
+            ctx.font = "18px Helvetica"
+            ctx.fillText(i.count.toString,i.x, i.y)
             ctx.strokeStyle = Color.Red.toString()
           ctx.strokeRect(i.x,i.y,i.length,i.length)
         }
