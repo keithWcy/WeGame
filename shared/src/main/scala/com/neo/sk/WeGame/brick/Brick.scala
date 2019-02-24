@@ -1,8 +1,10 @@
 package com.neo.sk.WeGame.brick
 
-import com.neo.sk.WeGame.brick.GameConfig.{ball, brick, player}
-import com.neo.sk.WeGame.brick.Protocol.{KC, MP}
+import com.neo.sk.WeGame.brick.GameConfig.{Point, ball, brick, player}
+import com.neo.sk.WeGame.brick.Protocol.{KC, MC}
+import com.neo.sk.WeGame.brick.GameConfig._
 
+import scala.math.{atan2, cos, sin}
 import scala.util.Random
 
 trait Brick {
@@ -10,6 +12,11 @@ trait Brick {
 
   def info(msg: String): Unit
 
+  var GameField=Point(400,520)
+  var minX=400
+  var maxX=800
+  var minY=40
+  var maxY=560
   var myId = ""
   var roomId = 0l
   val random = new Random(System.nanoTime())
@@ -21,7 +28,7 @@ trait Brick {
 
   var actionMap = Map.empty[Int, Map[String, KC]]
 
-  var mouseActionMap = Map.empty[Int, Map[String, MP]]
+  var mouseActionMap = Map.empty[String, MC]
 
   var firstCome = true
 
@@ -29,32 +36,72 @@ trait Brick {
     updateBricks()
     updateBalls()
     actionMap -= frameCount
-    mouseActionMap -= frameCount
     frameCount += 1
   }
 
-  private[this] def updateBricks() = {
+  def addBallMouseActionWithFrame(id:String, mc:MC) = {
+    mouseActionMap += (id-> mc)
+  }
+
+  def updateBricks() = {
 
   }
-  private[this] def updateBalls()={
 
+  def updateBalls() = {
+    val newPlayerMap = playerMap.values.map{ player =>
+      val newPlayerBall = player.balls.map(ball =>{
+        var newX = (ball.x + ball.targetX).toInt
+        var newY = (ball.y + ball.targety).toInt
+        var newspeedX = ball.targetX
+        var newspeedY = ball.targety
+        val mouseAct = mouseActionMap.get(player.id)
+        if(mouseAct.isDefined){
+            val mouse = mouseAct.get
+            val deg = atan2(mouse.cY - ball.y, mouse.cX - ball.x)
+            newspeedX = (cos(deg) * initBallSpeed).toFloat
+            newspeedY = (sin(deg) * initBallSpeed).toFloat
+        }
+        /**边界碰撞检测**/
+        if(newX > maxX - ball.radius) {
+          newX = maxX - ball.radius
+          newspeedX = -ball.targetX
+        }
+        if(newX < minX ) {
+          newX = minX
+          newspeedX = -ball.targetX
+        }
+        val position=player.position
+        if(position==1){ //上方
+          if(newY <= minY) newY = 0
+          if(newY > maxY - ball.radius) {
+            newY=maxY-ball.radius
+            newspeedY = -ball.targety
+          }
+        }else if(position==0){//下方
+          if(newY < minY) {
+            newY = minY
+            newspeedY = -ball.targety
+          }
+          if(newY >= maxY-ball.radius) newY=0
+        }
+        ball.copy(x= newX,y = newY,targetX = newspeedX,targety = newspeedY)
+      }).filterNot(i=>i.y==0)
+      if(mouseActionMap.get(player.id).isDefined){
+        mouseActionMap -= player.id
+      }
+      player.copy(balls = newPlayerBall)
+    }
+    println(s"ballList:$ballList")
+    ballList = newPlayerMap.map(s=>s.balls).toList.flatMap(i=>i.map(j=>j))
+    playerMap = newPlayerMap.map(s=>(s.id,s)).toMap
   }
 
   def checkCrash()={
-    checkBalltoBound()
     checkBalltoBrick()
-    checkBalltoOver()
   }
 
-  def checkBalltoBound()={
-
-  }
 
   def checkBalltoBrick()={
-
-  }
-
-  def checkBalltoOver()={
 
   }
 

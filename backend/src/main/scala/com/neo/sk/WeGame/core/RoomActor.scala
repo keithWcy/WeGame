@@ -4,13 +4,16 @@ import com.neo.sk.WeGame.brick.{GameProtocol, Protocol}
 import com.neo.sk.WeGame.brickServer.GameServer
 import com.neo.sk.WeGame.core.UserActor.JoinRoomSuccess
 import com.neo.sk.WeGame.brick.GameConfig._
+
 import scala.language.postfixOps
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, TimerScheduler}
 import akka.actor.typed.scaladsl.Behaviors
+import com.neo.sk.WeGame.brick.Protocol.MC
 import org.slf4j.LoggerFactory
 import org.seekloud.byteobject.ByteObject._
 import org.seekloud.byteobject.MiddleBufferInJvm
+
 import scala.concurrent.duration._
 import scala.collection.mutable
 
@@ -81,16 +84,21 @@ object RoomActor {
         case RoomActor.KeyR(id, keyCode,frame) =>
           Behaviors.same
 
+
         case RoomActor.MouseR(id,x,y,frame) =>
+          if(grid.playerMap.get(id).isDefined){
+            grid.addBallMouseActionWithFrame(id,MC(Some(id),x,y,math.max(grid.frameCount,frame)))
+            dispatch(subscribersMap)(MC(Some(id),x,y,math.max(grid.frameCount,frame)))
+          }
           Behaviors.same
 
         case Sync =>
           grid.getSubscribersMap(subscribersMap)
           grid.update()
-//          if(tickCount % 20 == 0){
-//            val gridData = grid.getAllGridData
-//            dispatch(subscribersMap)(gridData)
-//          }
+          if(tickCount % 20 == 0){
+            val gridData = grid.getAllGridData
+            dispatch(subscribersMap)(gridData)
+          }
           idle(roomId, grid, playerMap, subscribersMap, tickCount + 1)
 
         case x =>

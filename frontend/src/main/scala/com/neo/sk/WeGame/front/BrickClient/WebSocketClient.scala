@@ -23,6 +23,7 @@ case class WebSocketClient(
 
   def sendMsg(msg: Protocol.UserAction) = {
     import org.seekloud.byteobject.ByteObject._
+    println("send mouse message")
     webSocketOpt.get.send(msg.fillMiddleBuffer(sendBuffer).result())
   }
 

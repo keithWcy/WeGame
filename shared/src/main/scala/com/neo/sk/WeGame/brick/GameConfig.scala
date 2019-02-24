@@ -10,6 +10,8 @@ object GameConfig {
 
   val maxDelayFrame = 3
 
+  val initBallSpeed = 30
+
 
   case class Point(x: Int, y: Int) {
     def +(other: Point) = Point(x + other.x, y + other.y)
@@ -24,7 +26,7 @@ object GameConfig {
   case class player(
                      id:String,
                      name:String,
-                     position:Int,//0在上，1在下
+                     position:Int,//1在上，0在下
                      x:Int,//发射杆位置
                      y:Int,
                      bricks:List[brick],
@@ -43,8 +45,8 @@ object GameConfig {
                    id:String,
                    x:Int,//弹球位置
                    y:Int,
-                   targetX:Int,//弹球运动方向
-                   targety:Int,
+                   targetX:Float,//弹球运动方向
+                   targety:Float,
                    radius:Int=20,
                    IsDraw:Boolean = true
                  )

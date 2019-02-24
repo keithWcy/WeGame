@@ -1,7 +1,9 @@
 package com.neo.sk.WeGame.front.BrickClient
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import com.neo.sk.WeGame.brick.GameConfig.Point
-import com.neo.sk.WeGame.brick.Protocol.{GameMessage, GridDataSync}
+import com.neo.sk.WeGame.brick.Protocol.{GameMessage, GridDataSync, MC}
 import com.neo.sk.WeGame.front.common.Routes.GameRoute
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
@@ -16,7 +18,7 @@ class GameHolder {
   private[this] val gameCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val BpCanvas = dom.document.getElementById("backgroundView").asInstanceOf[Canvas]
   private[this] val BpCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-  private[this] val InfoCanvas = dom.document.getElementById("backgroundView").asInstanceOf[Canvas]
+  private[this] val InfoCanvas = dom.document.getElementById("InfoView").asInstanceOf[Canvas]
   private[this] val InfoCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val drawGameView=DrawGame(gameCtx,GameCanvas,window)
   private[this] val drawBpView=DrawGame(BpCtx,BpCanvas,window)
@@ -30,11 +32,17 @@ class GameHolder {
   var nextFrame = 0
   var mouseInFlame = false
   var keyInFlame = false
+  var mc = MC(None,0,0,0)
   private[this] var justSynced = false
   private[this] var logicFrameTime = System.currentTimeMillis()
+  private[this] val actionSerialNumGenerator = new AtomicInteger(0)
   private[this] var syncGridData: scala.Option[GridDataSync] = None
   private[this] var firstCome=true
+  private[this] var ballMove = true
+
   val webSocketClient = WebSocketClient(wsConnectSuccess,wsConnectError,wsMessageHandler,wsConnectClose)
+
+  def getActionSerialNum=actionSerialNumGenerator.getAndIncrement()
 
   def init()={
     drawBpView.drawConnectWait()
@@ -75,14 +83,15 @@ class GameHolder {
   def gameRender(): Double => Unit = { d =>
     val curTime = System.currentTimeMillis()
     val offsetTime = curTime - logicFrameTime
+    println(s"gameState:$gameState")
     gameState match {
       case 0 =>
         drawWait()
       case 1 =>
         draw(offsetTime)
-//        drawReady()
-//      case 2 =>
-//        draw(offsetTime)
+      case x =>
+        println(s"gameState error:$gameState")
+
     }
     nextFrame = dom.window.requestAnimationFrame(gameRender())
   }
@@ -90,8 +99,10 @@ class GameHolder {
   def draw(offsetTime:Long)={
     if(webSocketClient.getWsState){
       val data=grid.getGridData(grid.myId)
-      val myName=data.playerDetails.filter(_.id==grid.myId).map(_.name).toString()
-      val othername=data.playerDetails.filterNot(_.id==grid.myId).map(_.name).toString()
+      val myName=data.playerDetails.filter(_.id==grid.myId).map(_.name).head
+      var othername="等待中"
+      val other=data.playerDetails.filterNot(_.id==grid.myId).map(_.name)
+      if(other.size==1) othername=other.head
       drawBpView.clearCanvas()
       drawBpView.drawBackGround()
       drawGameView.drawGrid(grid.myId,data,offsetTime,firstCome)
@@ -128,19 +139,33 @@ class GameHolder {
   }
 
   def addActionListenEvent = {
-    GameCanvas.focus()
+    InfoCanvas.focus()
     //在画布上监听键盘事件
-    GameCanvas.onkeydown = {
+    InfoCanvas.onkeydown = {
       (e: dom.KeyboardEvent) => {
                 println(s"keydown: ${e.keyCode} ${gameState} ")
         if (keyInFlame == false) {
           if (gameState == 0) {
             if (e.keyCode == KeyCode.Space) {
-              gameState += 1
+              gameState = 1
               keyInFlame = true
             }
           }
         }
+      }
+    }
+
+    InfoCanvas.onclick = { (e: dom.MouseEvent) =>
+      //球在木板上时选择方向发射
+      println("mouse click")
+      if(grid.playerMap.get(grid.myId).isDefined && ballMove){
+        val pageX = e.pageX
+        val pageY = e.pageY
+        println(s"pageX:$pageX pageY:$pageY")
+        mc = MC(None, pageX.toShort, pageY.toShort, grid.frameCount)
+        grid.addBallMouseActionWithFrame(grid.myId, mc)
+        webSocketClient.sendMsg(mc)
+        //ballMove = false
       }
     }
   }
@@ -151,7 +176,6 @@ class GameHolder {
   }
 
   private def wsConnectError(e:ErrorEvent) = {
-    val playground = dom.document.getElementById("playground")
     println("----wsConnectError")
     e
   }
@@ -160,6 +184,18 @@ class GameHolder {
       case Protocol.Id(id) =>
         grid.myId = id
 
+      case m:Protocol.MC =>
+        if(m.id.isDefined){
+          val mid = m.id.get
+          if(!grid.myId.equals(mid)){
+            grid.addBallMouseActionWithFrame(mid,m)
+          }
+        }
+
+      case Protocol.PlayerJoin(id,player) =>
+        if(!grid.playerMap.contains(player.id)) {
+          grid.playerMap += (player.id -> player)
+        }
 
       case data: Protocol.GridDataSync =>
         println("获取全量数据  get ALL GRID===================")
@@ -168,6 +204,8 @@ class GameHolder {
 
       case Protocol.RoomId(id) =>
         grid.roomId = id
+
+      case x=>
     }
   }
 

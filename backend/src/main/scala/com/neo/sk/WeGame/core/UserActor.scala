@@ -1,6 +1,6 @@
 package com.neo.sk.WeGame.core
 
-import com.neo.sk.WeGame.brick.Protocol.{KC, MP}
+import com.neo.sk.WeGame.brick.Protocol._
 import com.neo.sk.WeGame.brick.{GameProtocol, Protocol}
 import com.neo.sk.WeGame.Boot.roomManager
 import akka.actor.typed.{ActorRef, Behavior}
@@ -71,7 +71,7 @@ object UserActor {
             log.debug(s"键盘事件$keyCode")
             Key(keyCode,f)
 
-          case MP(_,clientX,clientY,f)=>
+          case MC(_,clientX,clientY,f)=>
             Mouse(clientX,clientY,f)
 
 
@@ -117,7 +117,7 @@ object UserActor {
     Behaviors.receive[Command]{(ctx, msg) =>
       msg match {
         case UserFrontActor(frontActor) =>
-          ctx.watchWith(frontActor,UserLeft(frontActor))
+    //      ctx.watchWith(frontActor,UserLeft(frontActor))
           switchBehavior(ctx,"idle", idle(userInfo,System.currentTimeMillis(),frontActor))
 
         case UserLeft(actor) =>
@@ -192,7 +192,6 @@ object UserActor {
           Behaviors.same
 
         case DispatchMsg(m)=>
-          //          log.info(s"bot:    $m")
           frontActor ! m
           Behaviors.same
 

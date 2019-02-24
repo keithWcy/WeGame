@@ -18,9 +18,10 @@ object Protocol {
   case class UserDeadMessage(deadId:String, score:Short) extends GameMessage
   case class Id(id: String) extends GameMessage
   case class RoomId(id:Long) extends GameMessage
-  case class MP(id: Option[Byte],cX:Short,cY:Short,frame:Int) extends UserAction with GameMessage
-  case class KC(id: Option[Byte],keyCode:Short,frame:Int) extends UserAction with GameMessage
+  case class MC(id: Option[String],cX:Short,cY:Short,frame:Int) extends UserAction with GameMessage
+  case class KC(id: Option[String],keyCode:Short,frame:Int) extends UserAction with GameMessage
   case class JoinRoomSuccess(playerId:String, roomId:Long) extends GameMessage
+  case class PlayerJoin(id:String, player:player) extends GameMessage //id: 映射id
 
   case class GridDataSync(
                            frameCount: Int,

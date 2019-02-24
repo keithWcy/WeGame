@@ -2,7 +2,7 @@ package com.neo.sk.WeGame.brickServer
 
 import akka.actor.typed.ActorRef
 import com.neo.sk.WeGame.brick.GameConfig.{ball, brick, player}
-import com.neo.sk.WeGame.brick.Protocol.Id
+import com.neo.sk.WeGame.brick.Protocol.{Id, PlayerJoin}
 import com.neo.sk.WeGame.brick.{Brick, GameConfig, GameProtocol, Protocol}
 import com.neo.sk.WeGame.core.UserActor
 import org.seekloud.byteobject.MiddleBufferInJvm
@@ -30,32 +30,39 @@ class GameServer extends Brick {
     waitingJoin.filterNot(kv => playerMap.contains(kv._1)).foreach { case (id, (name,position)) =>
       var x=0
       var y=0
+      var bricklist:List[brick]=Nil
+      var balllist:List[ball]=Nil
       if(position==1){ //上方
         x=600
         y=20
-        for(j <- 0 to 1){
+        for(j <- 0 to 3){
           for(i <- 1 to 2){
             val num= new Random(System.nanoTime()).nextInt(8)
-            brickList ::= brick(id,400+num*37,300-(j+1)*37)
+            val brickCount = new Random(System.nanoTime()).nextInt(4)+1
+            bricklist ::= brick(id,400+num*37,300-(j+1)*37,count=brickCount)
           }
         }
-        for(i <- 1 to 3)
-        ballList ::= ball(id,x-10,y+10,0,0)
+        for(i <- 0 to 2)
+        balllist ::= ball(id,x-10+(i-1)*20,y+22,0,0)
       }else{
         x=600
         y=580
-        for(j <- 0 to 1){
+        for(j <- 0 to 3){
           for(i <- 1 to 2){
             val num= new Random(System.nanoTime()).nextInt(8)
-            brickList ::= brick(id,400+num*37,300+j*37)
+            val brickCount = new Random(System.nanoTime()).nextInt(4)+1
+            bricklist ::= brick(id,400+num*37,300+j*37,count=brickCount)
           }
         }
-        for(i <- 1 to 3)
-          ballList ::= ball(id,x-10,y-30,0,0)
+        for(i <- 0 to 2)
+          balllist ::= ball(id,x-10+(i-1)*20,y-42,0,0)
       }
-      val player = GameConfig.player(id, name, position,x,y,brickList,ballList)
+      brickList = bricklist ::: brickList
+      ballList = balllist ::: ballList
+      val player = GameConfig.player(id, name, position,x,y,bricklist,balllist)
       playerMap += id -> player
       dispatch(subscriber)(getAllGridData())
+      dispatch(subscriber)(PlayerJoin(id,player))
     }
 
     waitingJoin = Map.empty[String, (String,Int)]

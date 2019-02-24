@@ -20,6 +20,7 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
 
   private[this] val ballImg=dom.document.getElementById("ball").asInstanceOf[HTMLElement]
 
+  val numOff=Point(12,25)
   def drawConnectWait()={
     ctx.fillStyle = Color.Black.toString()
     ctx.font = "36px Helvetica"
@@ -59,10 +60,10 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
 
   def drawRoomInfo(roomId:String,myName:String,otherName:String)={
     ctx.fillStyle = Color.Black.toString()
-    ctx.font= "24px Helvetica"
-    ctx.fillText(s"房间号：$roomId",300,100)
-    ctx.fillText(s"Your Name:$myName",300,150)
-    ctx.fillText(s"Oppo Name:$otherName",300,200)
+    ctx.font= "20px Helvetica"
+    ctx.fillText(s"房间号：$roomId",100,100)
+    ctx.fillText(s"Your Name:$myName",100,150)
+    ctx.fillText(s"Oppo Name:$otherName",100,200)
   }
 
   def drawGrid(uid:String,data:GridDataSync,OffsetTime:Long,firstCome:Boolean)={
@@ -75,12 +76,11 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
     ctx.fillRect(width/2-200,height/2-260,400,520)
     bricks.groupBy(_.id).foreach{
       i=>
-        println(s"uid:$uid brickid:${i._1}")
         if(i._1==uid) {
         ctx.fillStyle = Color.Blue.toString()
         i._2.foreach { i =>
           ctx.font = "18px Helvetica"
-          ctx.fillText(i.count.toString,i.x, i.y)
+          ctx.fillText(i.count.toString,i.x+numOff.x, i.y+numOff.y)
           ctx.strokeStyle = Color.Blue.toString()
           ctx.strokeRect(i.x, i.y, i.length, i.length)
         }
@@ -89,7 +89,7 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
           ctx.fillStyle = Color.Red.toString()
           i._2.foreach { i =>
             ctx.font = "18px Helvetica"
-            ctx.fillText(i.count.toString,i.x, i.y)
+            ctx.fillText(i.count.toString,i.x+numOff.x, i.y+numOff.y)
             ctx.strokeStyle = Color.Red.toString()
           ctx.strokeRect(i.x,i.y,i.length,i.length)
         }

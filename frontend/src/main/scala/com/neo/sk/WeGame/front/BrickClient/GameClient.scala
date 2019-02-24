@@ -12,7 +12,7 @@ class GameClient extends Brick{
 
   def setSyncGridData(data:GridDataSync): Unit = {
     actionMap = actionMap.filterKeys(_ > data.frameCount- maxDelayFrame)
-    mouseActionMap = mouseActionMap.filterKeys(_ > data.frameCount-maxDelayFrame)
+//    mouseActionMap = mouseActionMap.filterKeys(_ > data.frameCount-maxDelayFrame)
     frameCount = data.frameCount
     playerMap = data.playerDetails.map(s => s.id -> s).toMap
     brickList = data.brickDetails
