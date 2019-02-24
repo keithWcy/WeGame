@@ -4,7 +4,7 @@ import com.neo.sk.WeGame.brick.GameConfig.{Point, ball, brick, player}
 import com.neo.sk.WeGame.brick.Protocol.{KC, MC}
 import com.neo.sk.WeGame.brick.GameConfig._
 
-import scala.math.{atan2, cos, sin}
+import scala.math._
 import scala.util.Random
 
 trait Brick {
@@ -44,7 +44,7 @@ trait Brick {
   }
 
   def updateBricks() = {
-
+   checkCrash()
   }
 
   def updateBalls() = {
@@ -61,7 +61,7 @@ trait Brick {
             newspeedX = (cos(deg) * initBallSpeed).toFloat
             newspeedY = (sin(deg) * initBallSpeed).toFloat
         }
-        /**边界碰撞检测**/
+        /**边界碰撞，更新小球状态**/
         if(newX > maxX - ball.radius) {
           newX = maxX - ball.radius
           newspeedX = -ball.targetX
@@ -91,7 +91,7 @@ trait Brick {
       }
       player.copy(balls = newPlayerBall)
     }
-    println(s"ballList:$ballList")
+    //println(s"ballList:$ballList")
     ballList = newPlayerMap.map(s=>s.balls).toList.flatMap(i=>i.map(j=>j))
     playerMap = newPlayerMap.map(s=>(s.id,s)).toMap
   }
@@ -100,10 +100,41 @@ trait Brick {
     checkBalltoBrick()
   }
 
-
-  def checkBalltoBrick()={
-
+  def checkBalltoBrick() = {
+    val newPlayerMap = playerMap.values.map{
+      player =>
+        val newPlayerBall = player.balls.map(ball =>{
+          var newX = (ball.x+ball.targetX).toInt
+          var newY = (ball.y+ball.targety).toInt
+          var newspeedX = ball.targetX
+          var newspeedY = ball.targety
+          val newBricklist=brickList.map { brick =>
+            val brickx=brick.x
+            val bricky=brick.y
+            var newbrickCount=brick.count
+            val distance=sqrt(pow(brickx-newX,2)+pow(bricky-newY,2))
+            if(distance<brick.length){
+              newspeedX = -newspeedX
+              newspeedY = -newspeedY
+              if(brick.id==player.id){
+                newbrickCount -= 1
+                println(s"brickcount:${brick.count} newbrickCount:$newbrickCount")
+              }else if(brick.id!=player.id){
+                newbrickCount += 1
+              }
+            }
+            brick.copy(count=newbrickCount)
+          }.filterNot(i=>i.count==0)
+          brickList = newBricklist
+          //player.copy(bricks=newBricklist)
+          ball.copy(targetX = newspeedX, targety = newspeedY)
+        })
+        player.copy(balls = newPlayerBall)
+    }
+    ballList = newPlayerMap.map(s=>s.balls).toList.flatMap(i=>i.map(j=>j))
+    playerMap = newPlayerMap.map(s=>(s.id, s.copy(bricks = brickList.filter(i=>i.id==s.id)))).toMap
   }
+
 
 
 

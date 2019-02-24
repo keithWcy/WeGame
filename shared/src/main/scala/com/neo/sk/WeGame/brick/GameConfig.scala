@@ -39,7 +39,7 @@ object GameConfig {
                     x:Int,//砖块位置
                     y:Int,
                     length:Int=35,
-                    count:Int=3//砖块计数
+                    count:Int //砖块计数
                   )
   case class ball(
                    id:String,

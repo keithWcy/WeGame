@@ -102,11 +102,21 @@ class GameHolder {
       val myName=data.playerDetails.filter(_.id==grid.myId).map(_.name).head
       var othername="等待中"
       val other=data.playerDetails.filterNot(_.id==grid.myId).map(_.name)
+      var myScore=0
+      var oppScore=0
+      data.playerDetails.find(_.id==grid.myId).get.bricks.foreach(i=>myScore+=i.count)
+      data.playerDetails.find(_.id!=grid.myId) match{
+        case Some(player) =>
+          player.bricks.foreach(i=> oppScore +=i.count)
+        case None =>
+      }
+      val position=data.playerDetails.find(_.id==grid.myId).get.position//1上，0下
       if(other.size==1) othername=other.head
       drawBpView.clearCanvas()
       drawBpView.drawBackGround()
       drawGameView.drawGrid(grid.myId,data,offsetTime,firstCome)
-      drawInfo.drawRoomInfo(grid.roomId.toString,myName,othername)
+      drawGameView.drawWarning(position)
+      drawInfo.drawRoomInfo(grid.roomId.toString,myName,othername,myScore,oppScore)
     }
     else{
       drawBpView.clearCanvas()

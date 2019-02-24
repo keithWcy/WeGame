@@ -45,8 +45,6 @@ object UserManager {
     Behaviors.receive[Command]{(ctx, msg) =>
       msg match {
         case GetWebSocketFlow(playerInfo,roomIdOpt,replyTo) =>
-          //          log.info(s" ROOM: ${roomIdOpt} ============= ")
-
           val userActor = getUserActor(ctx,playerInfo)
           replyTo ! getWebSocketFlow(playerInfo,0L,userActor)
           userActor ! UserActor.StartGame(roomIdOpt)

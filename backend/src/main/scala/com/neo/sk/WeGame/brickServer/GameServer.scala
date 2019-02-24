@@ -36,10 +36,15 @@ class GameServer extends Brick {
         x=600
         y=20
         for(j <- 0 to 3){
+          val brickCount = new Random(System.nanoTime()).nextInt(4)+1
           for(i <- 1 to 2){
             val num= new Random(System.nanoTime()).nextInt(8)
-            val brickCount = new Random(System.nanoTime()).nextInt(4)+1
-            bricklist ::= brick(id,400+num*37,300-(j+1)*37,count=brickCount)
+            if(bricklist.contains(brick(id,400+num*37,300-(j+1)*37,count=brickCount))&&num<8){
+              bricklist ::= brick(id,400+(num+1)*37,300-(j+1)*37,count=brickCount)
+            }else if(bricklist.contains(brick(id,400+num*37,300-(j+1)*37,count=brickCount))&&num==8){
+              bricklist ::= brick(id,400+(num-1)*37,300-(j+1)*37,count=brickCount)
+            }else bricklist ::= brick(id,400+num*37,300-(j+1)*37,count=brickCount)
+
           }
         }
         for(i <- 0 to 2)
@@ -48,10 +53,14 @@ class GameServer extends Brick {
         x=600
         y=580
         for(j <- 0 to 3){
+          val brickCount = new Random(System.nanoTime()).nextInt(4)+1
           for(i <- 1 to 2){
             val num= new Random(System.nanoTime()).nextInt(8)
-            val brickCount = new Random(System.nanoTime()).nextInt(4)+1
-            bricklist ::= brick(id,400+num*37,300+j*37,count=brickCount)
+            if(bricklist.contains(brick(id,400+num*37,300+j*37,count=brickCount))&&num<8){
+              bricklist ::= brick(id,400+(num+1)*37,300+j*37,count=brickCount)
+            }else if(bricklist.contains(brick(id,400+num*37,300+j*37,count=brickCount))&&num==8){
+              bricklist ::= brick(id,400+(num-1)*37,300+j*37,count=brickCount)
+            }else bricklist ::= brick(id,400+num*37,300+j*37,count=brickCount)
           }
         }
         for(i <- 0 to 2)
