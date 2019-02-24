@@ -5,7 +5,8 @@ import java.util.concurrent.atomic.AtomicLong
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, TimerScheduler}
 import com.neo.sk.WeGame.brick.GameProtocol
-import com.neo.sk.WeGame.core.UserActor.JoinRoom
+import com.neo.sk.WeGame.core.RoomManager.getRoomActor
+import com.neo.sk.WeGame.core.UserActor.{JoinRoom, rePlay}
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
@@ -83,7 +84,6 @@ object RoomManager {
               case None => log.debug(s"该玩家不在任何房间")
             }
             Behaviors.same
-
 
           case x=>
             log.debug(s"msg can't handle with ${x}")

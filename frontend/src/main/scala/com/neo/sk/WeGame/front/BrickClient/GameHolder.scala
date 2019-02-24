@@ -83,7 +83,6 @@ class GameHolder {
   def gameRender(): Double => Unit = { d =>
     val curTime = System.currentTimeMillis()
     val offsetTime = curTime - logicFrameTime
-    println(s"gameState:$gameState")
     gameState match {
       case 0 =>
         drawWait()
@@ -106,6 +105,9 @@ class GameHolder {
       val data=grid.getGridData(grid.myId)
       var myScore=0
       var oppScore=0
+      var oppId=""
+      val oppPlayer=grid.playerMap.filterNot(i=>i._1==grid.myId).keys
+      if(!oppId.isEmpty) oppId=oppPlayer.toList.head
       data.playerDetails.find(_.id==grid.myId).get.bricks.foreach(i=>myScore+=i.count)
       data.playerDetails.find(_.id!=grid.myId) match{
         case Some(player) =>
@@ -113,9 +115,21 @@ class GameHolder {
         case None =>
       }
       if(grid.playerMap.size==2){
-        if(myScore>oppScore){
+        if(!data.brickDetails.exists(_.id==grid.myId)){
+          drawInfo.drawResult(myScore,oppScore,true)
+        } else if(!data.brickDetails.exists(_.id==oppId)){
           drawInfo.drawResult(myScore,oppScore,false)
-        }else if(myScore<oppScore){
+        } else if(oppScore>=100){
+          drawInfo.drawResult(myScore,oppScore,true)
+        } else if(myScore>=100){
+          drawInfo.drawResult(myScore,oppScore,false)
+        } else if(!data.ballDetails.exists(_.id==grid.myId)){
+          drawInfo.drawResult(myScore,oppScore,false)
+        } else if(!data.ballDetails.exists(_.id==oppId)){
+          drawInfo.drawResult(myScore,oppScore,true)
+        } else if(myScore>oppScore){
+          drawInfo.drawResult(myScore,oppScore,false)
+        } else if(myScore<oppScore){
           drawInfo.drawResult(myScore,oppScore,true)
         }else drawInfo.drawBalance(myScore,oppScore)
       }else drawInfo.drawOppLeave()
@@ -255,6 +269,14 @@ class GameHolder {
             gameState = 2
           }
         }
+
+      case Protocol.gameOver(roomId,loserId)=>
+        println("gameOver")
+        gameState = 2
+//        grid.playerMap=Map.empty[String,player]
+//        grid.ballList=List()
+//        grid.brickList=List()
+
 
       case x=>
     }

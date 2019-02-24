@@ -2,8 +2,9 @@ package com.neo.sk.WeGame.front.BrickClient
 
 import com.neo.sk.WeGame.brick.GameConfig.Point
 import com.neo.sk.WeGame.brick.Protocol.GridDataSync
+import com.neo.sk.WeGame.front.utils.ShortCut
 import org.scalajs.dom
-import org.scalajs.dom.CanvasRenderingContext2D
+import org.scalajs.dom.{CanvasRenderingContext2D, MouseEvent}
 import org.scalajs.dom.ext.Color
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLElement
@@ -20,7 +21,13 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
 
   private[this] val myImg=dom.document.getElementById("ball").asInstanceOf[HTMLElement]
   private[this] val OpImg=dom.document.getElementById("basket").asInstanceOf[HTMLElement]
-
+  private[this] val rePlayButton=dom.document.getElementById("rePlay").asInstanceOf[HTMLElement]
+  rePlayButton.onclick={e: MouseEvent =>
+    val playerId=System.currentTimeMillis().toString
+    val playerName="游客"
+    val url=s"brick/playGame?playerId=$playerId&playerName=$playerName"
+    ShortCut.redirect(url)
+  }
   val numOff=Point(12,25)
   def drawConnectWait()={
     ctx.fillStyle = Color.Black.toString()
@@ -52,7 +59,7 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
     if(position==1){
       ctx.fillRect(width/2-200,height/2-260,400,5)
     }else if(position==0){
-      ctx.fillRect(width/2-200,height/2-260+510,400,5)
+      ctx.fillRect(width/2-200,height/2-260+515,400,5)
     }
   }
 
@@ -73,14 +80,15 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
     ctx.font="22px Helvetica"
     if(isWinner) {
       ctx.fillText("YOU WIN!!",300,100)
-      ctx.fillText(s"结算:获取${oppScore-myScore}分",300,310)
+      ctx.fillText(s"结算:获取${math.abs(oppScore-myScore)}分",300,310)
     }
     else {
       ctx.fillText("YOU FAIL",300,100)
-      ctx.fillText(s"结算:扣除${myScore-oppScore}分",300,310)
+      ctx.fillText(s"结算:扣除${math.abs(myScore-oppScore)}分",300,310)
     }
     ctx.fillText(s"你的砖块数:$myScore",300,170)
     ctx.fillText(s"对方砖块数:$oppScore",300,240)
+    rePlayButton.style.display="inline"
 
   }
 
@@ -90,12 +98,14 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
     ctx.fillText("平局～～",300,100)
     ctx.fillText(s"你的砖块数:$myScore",300,170)
     ctx.fillText(s"对方砖块数:$oppScore",300,240)
+    rePlayButton.style.display="inline"
   }
 
   def drawOppLeave()={
     ctx.fillStyle=Color.Black.toString()
     ctx.font="22px Helvetica"
     ctx.fillText("你真厉害！对手已逃离！",300,200)
+    rePlayButton.style.display="inline"
   }
 
   def drawRoomInfo(roomId:String,myName:String,otherName:String,myScore:Int,oppScore:Int)={

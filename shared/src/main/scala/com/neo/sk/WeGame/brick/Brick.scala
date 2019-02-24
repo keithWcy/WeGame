@@ -32,12 +32,15 @@ trait Brick {
 
   var firstCome = true
 
-  def removePlayer(id: String): Option[player] = {
+  def removePlayer(id: String) = {
     val r = playerMap.get(id)
     if (r.isDefined) {
       playerMap -= id
     }
-    r
+    val newBrickList=brickList.filterNot(_.id==id)
+    val newBallList=ballList.filterNot(_.id==id)
+    brickList = newBrickList
+    ballList =newBallList
   }
 
   def update() = {
@@ -126,7 +129,6 @@ trait Brick {
               newspeedY = -newspeedY
               if(brick.id==player.id){
                 newbrickCount -= 1
-                println(s"brickcount:${brick.count} newbrickCount:$newbrickCount")
               }else if(brick.id!=player.id){
                 newbrickCount += 1
               }

@@ -31,6 +31,7 @@ object UserActor {
   case class Key(keyCode: Int,frame:Int) extends Command
   case class Mouse(clientX:Short,clientY:Short,frame:Int) extends Command
   case class JoinRoom(playerInfo: GameProtocol.playerInfo,roomIdOpt:Option[Long] = None,userActor:ActorRef[UserActor.Command]) extends Command with RoomManager.Command
+  case class rePlay(playerInfo:GameProtocol.playerInfo) extends Command with RoomManager.Command
   case class JoinRoomSuccess(roomId:Long, roomActor: ActorRef[RoomActor.Command]) extends Command with RoomManager.Command
   case class UserFrontActor(actor: ActorRef[Protocol.WsMsgSource]) extends Command
   case class Left(playerInfo: GameProtocol.playerInfo) extends Command with RoomActor.Command

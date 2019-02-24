@@ -9,7 +9,7 @@ import scala.language.postfixOps
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, TimerScheduler}
 import akka.actor.typed.scaladsl.Behaviors
-import com.neo.sk.WeGame.brick.Protocol.MC
+import com.neo.sk.WeGame.brick.Protocol.{MC, gameOver}
 import org.slf4j.LoggerFactory
 import org.seekloud.byteobject.ByteObject._
 import org.seekloud.byteobject.MiddleBufferInJvm
@@ -95,9 +95,9 @@ object RoomActor {
         case UserActor.Left(playerInfo) =>
           log.info(s"RoomActor----player Left $msg")
           if(grid.playerMap.get(playerInfo.playerId).isDefined){
+            grid.removePlayer(playerInfo.playerId)
             dispatch(subscribersMap)(Protocol.PlayerLeft(playerInfo.playerId))
           }
-          grid.removePlayer(playerInfo.playerId)
           playerMap.remove(playerInfo.playerId)
           subscribersMap.remove(playerInfo.playerId)
           Behaviors.same
@@ -105,6 +105,29 @@ object RoomActor {
         case Sync =>
           grid.getSubscribersMap(subscribersMap)
           grid.update()
+          val data=grid.getAllGridData()
+          var score=0
+          data.playerDetails.groupBy(_.id).find(
+            i=>
+              i._2.exists(_.bricks.isEmpty)
+          ) match{
+            case Some(player)=>
+              dispatch(subscribersMap)(gameOver(roomId,player._1))
+            case None =>
+          }
+          data.brickDetails.groupBy(_.id).foreach{
+            i=>
+              i._2.map(j=>score+=j.count)
+              if(score>=100){
+                dispatch(subscribersMap)(gameOver(roomId,i._1))
+              }
+              score=0
+          }
+          data.playerDetails.foreach(i=>
+            if(i.balls==List()){
+              dispatch(subscribersMap)(gameOver(roomId,i.id))
+            }
+          )
           if(tickCount % 20 == 0){
             val gridData = grid.getAllGridData
             dispatch(subscribersMap)(gridData)

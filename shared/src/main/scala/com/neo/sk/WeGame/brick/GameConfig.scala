@@ -4,13 +4,11 @@ object GameConfig {
 
   val frameRate = 150  //ms
 
-  val advanceFrame = 0 //客户端提前的帧数
-
   val delayFrame = 1 //延时帧数，抵消网络延时
 
   val maxDelayFrame = 3
 
-  val initBallSpeed = 30
+  val initBallSpeed = 20
 
 
   case class Point(x: Int, y: Int) {

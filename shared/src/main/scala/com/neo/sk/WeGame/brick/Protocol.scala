@@ -23,7 +23,7 @@ object Protocol {
   case class JoinRoomSuccess(playerId:String, roomId:Long) extends GameMessage
   case class PlayerJoin(id:String, player:player) extends GameMessage //id: 映射id
   case class PlayerLeft(id: String) extends GameMessage
-  case class gameOver(roomId:Long) extends GameMessage
+  case class gameOver(roomId:Long,loser:String) extends GameMessage
 
   case class GridDataSync(
                            frameCount: Int,
