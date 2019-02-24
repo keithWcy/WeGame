@@ -117,7 +117,7 @@ object UserActor {
     Behaviors.receive[Command]{(ctx, msg) =>
       msg match {
         case UserFrontActor(frontActor) =>
-    //      ctx.watchWith(frontActor,UserLeft(frontActor))
+          ctx.watchWith(frontActor,UserLeft(frontActor))
           switchBehavior(ctx,"idle", idle(userInfo,System.currentTimeMillis(),frontActor))
 
         case UserLeft(actor) =>
@@ -157,7 +157,6 @@ object UserActor {
 
         case JoinRoomSuccess(roomId,roomActor)=>
           frontActor ! Protocol.Wrap(Protocol.JoinRoomSuccess(userInfo.playerId,roomId).asInstanceOf[Protocol.GameMessage].fillMiddleBuffer(sendBuffer).result())
-          //          frontActor ! Protocol.JoinRoomSuccess(userInfo.playerId,roomId)
           switchBehavior(ctx,"play",play(userInfo,frontActor,roomActor))
 
 

@@ -92,6 +92,16 @@ object RoomActor {
           }
           Behaviors.same
 
+        case UserActor.Left(playerInfo) =>
+          log.info(s"RoomActor----player Left $msg")
+          if(grid.playerMap.get(playerInfo.playerId).isDefined){
+            dispatch(subscribersMap)(Protocol.PlayerLeft(playerInfo.playerId))
+          }
+          grid.removePlayer(playerInfo.playerId)
+          playerMap.remove(playerInfo.playerId)
+          subscribersMap.remove(playerInfo.playerId)
+          Behaviors.same
+
         case Sync =>
           grid.getSubscribersMap(subscribersMap)
           grid.update()

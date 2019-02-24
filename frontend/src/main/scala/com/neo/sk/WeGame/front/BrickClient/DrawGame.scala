@@ -68,6 +68,36 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
     ctx.fillRect(0, 0, this.canvas.width , this.canvas.height )
   }
 
+  def drawResult(myScore:Int,oppScore:Int,isWinner:Boolean)={
+    ctx.fillStyle=Color.Black.toString()
+    ctx.font="22px Helvetica"
+    if(isWinner) {
+      ctx.fillText("YOU WIN!!",300,100)
+      ctx.fillText(s"结算:获取${oppScore-myScore}分",300,310)
+    }
+    else {
+      ctx.fillText("YOU FAIL",300,100)
+      ctx.fillText(s"结算:扣除${myScore-oppScore}分",300,310)
+    }
+    ctx.fillText(s"你的砖块数:$myScore",300,170)
+    ctx.fillText(s"对方砖块数:$oppScore",300,240)
+
+  }
+
+  def drawBalance(myScore:Int,oppScore:Int)={
+    ctx.fillStyle=Color.Black.toString()
+    ctx.font="22px Helvetica"
+    ctx.fillText("平局～～",300,100)
+    ctx.fillText(s"你的砖块数:$myScore",300,170)
+    ctx.fillText(s"对方砖块数:$oppScore",300,240)
+  }
+
+  def drawOppLeave()={
+    ctx.fillStyle=Color.Black.toString()
+    ctx.font="22px Helvetica"
+    ctx.fillText("你真厉害！对手已逃离！",300,200)
+  }
+
   def drawRoomInfo(roomId:String,myName:String,otherName:String,myScore:Int,oppScore:Int)={
     ctx.fillStyle = Color.Black.toString()
     ctx.font= "18px Helvetica"
@@ -113,6 +143,22 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
         }else ctx.drawImage(OpImg,ball.x,ball.y,ball.radius,ball.radius)
       }
     }
+  }
+
+  var timeNum=60
+  var clock1=0
+
+  def drawClock():Unit={
+    clock1 = dom.window.setInterval(()=>clock(timeNum),1000)
+  }
+
+  def clock(time:Int):Unit={
+    ctx.fillStyle = Color.White.toString()
+    ctx.fillRect(0, 0, this.canvas.width , this.canvas.height )
+    ctx.fillStyle = "rgba(99, 19, 99, 1)"
+    ctx.font = "36px Helvetica"
+    ctx.fillText(s"游戏剩余时间:${time}s", 300, 380)
+    timeNum = timeNum-1
   }
 
 }

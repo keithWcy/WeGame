@@ -22,7 +22,7 @@ trait Brick {
   val random = new Random(System.nanoTime())
   var frameCount = 0
 
-  var playerMap = Map.empty[String,player]
+  var playerMap = Map.empty[String,player] //(ID=>PLAYER)
   var brickList = List[brick]() //(用户ID => 他的砖块）
   var ballList = List[ball]() //(用户ID => 他的球）
 
@@ -31,6 +31,14 @@ trait Brick {
   var mouseActionMap = Map.empty[String, MC]
 
   var firstCome = true
+
+  def removePlayer(id: String): Option[player] = {
+    val r = playerMap.get(id)
+    if (r.isDefined) {
+      playerMap -= id
+    }
+    r
+  }
 
   def update() = {
     updateBricks()

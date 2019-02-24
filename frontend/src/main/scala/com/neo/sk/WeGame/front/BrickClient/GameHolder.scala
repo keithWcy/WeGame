@@ -89,11 +89,37 @@ class GameHolder {
         drawWait()
       case 1 =>
         draw(offsetTime)
+      case 2 =>
+        drawGameOver()
       case x =>
         println(s"gameState error:$gameState")
 
     }
     nextFrame = dom.window.requestAnimationFrame(gameRender())
+  }
+
+  def drawGameOver()={
+    if(webSocketClient.getWsState){
+      drawBpView.clearCanvas()
+      drawInfo.clearCanvas()
+      drawGameView.clearCanvas()
+      val data=grid.getGridData(grid.myId)
+      var myScore=0
+      var oppScore=0
+      data.playerDetails.find(_.id==grid.myId).get.bricks.foreach(i=>myScore+=i.count)
+      data.playerDetails.find(_.id!=grid.myId) match{
+        case Some(player) =>
+          player.bricks.foreach(i=> oppScore +=i.count)
+        case None =>
+      }
+      if(grid.playerMap.size==2){
+        if(myScore>oppScore){
+          drawInfo.drawResult(myScore,oppScore,false)
+        }else if(myScore<oppScore){
+          drawInfo.drawResult(myScore,oppScore,true)
+        }else drawInfo.drawBalance(myScore,oppScore)
+      }else drawInfo.drawOppLeave()
+    }
   }
 
   def draw(offsetTime:Long)={
@@ -158,13 +184,16 @@ class GameHolder {
           if (gameState == 0) {
             if (e.keyCode == KeyCode.Space) {
               gameState = 1
+              addMouseListenEvent()
               keyInFlame = true
             }
           }
         }
       }
     }
+  }
 
+  def addMouseListenEvent()={
     InfoCanvas.onclick = { (e: dom.MouseEvent) =>
       //球在木板上时选择方向发射
       println("mouse click")
@@ -179,6 +208,8 @@ class GameHolder {
       }
     }
   }
+
+
 
   private def wsConnectSuccess(e:Event) = {
     println(s"连接服务器成功")
@@ -215,6 +246,16 @@ class GameHolder {
       case Protocol.RoomId(id) =>
         grid.roomId = id
 
+      case Protocol.PlayerLeft(id) =>
+        if(grid.playerMap.get(id).isDefined){
+          grid.removePlayer(id)
+          if(id == grid.myId)
+            gameClose
+          else {
+            gameState = 2
+          }
+        }
+
       case x=>
     }
   }
@@ -222,6 +263,12 @@ class GameHolder {
   private def wsConnectClose(e:Event) = {
     println("last Ws close")
     e
+  }
+
+  def gameClose={
+    webSocketClient.closeWs
+    dom.window.cancelAnimationFrame(nextFrame)
+    dom.window.clearInterval(nextInt)
   }
 }
 

@@ -77,7 +77,7 @@ object RoomManager {
           case LeftRoom(playerInfo) =>
             roomInUse.find(_._2.exists(_._1 == playerInfo.playerId)) match{
               case Some(t) =>
-                roomInUse.put(t._1,t._2.filterNot(_._1 == playerInfo.playerId))
+                //roomInUse.put(t._1,t._2.filterNot(_._1 == playerInfo.playerId))
                 getRoomActor(ctx,t._1) ! UserActor.Left(playerInfo)
                 if(roomInUse(t._1).isEmpty && t._1 > 1l)roomInUse.remove(t._1)
               case None => log.debug(s"该玩家不在任何房间")
