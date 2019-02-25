@@ -71,7 +71,7 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
     ctx.drawImage(SeaImg,0,0,this.canvas.width,this.canvas.height)
     ctx.strokeStyle=Color.Black.toString()
     ctx.strokeRect(width/2-200,height/2-260,400,520)
-    ctx.fillStyle="#fbf0b6"
+    ctx.fillStyle="#fefae6"
     ctx.fillRect(width/2-200,height/2-260,400,520)
   }
 
