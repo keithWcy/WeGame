@@ -17,9 +17,9 @@ class GameHolder {
   private[this] val GameCanvas = dom.document.getElementById("GameView").asInstanceOf[Canvas]
   private[this] val gameCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val BpCanvas = dom.document.getElementById("backgroundView").asInstanceOf[Canvas]
-  private[this] val BpCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+  private[this] val BpCtx = BpCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val InfoCanvas = dom.document.getElementById("InfoView").asInstanceOf[Canvas]
-  private[this] val InfoCtx = GameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+  private[this] val InfoCtx = InfoCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val drawGameView=DrawGame(gameCtx,GameCanvas,window)
   private[this] val drawBpView=DrawGame(BpCtx,BpCanvas,window)
   private[this] val drawInfo=DrawGame(InfoCtx,InfoCanvas,window)
@@ -45,7 +45,7 @@ class GameHolder {
   def getActionSerialNum=actionSerialNumGenerator.getAndIncrement()
 
   def init()={
-    drawBpView.drawConnectWait()
+    drawBpView.drawBackGround()
   }
 
   def start(): Unit = {
@@ -87,6 +87,7 @@ class GameHolder {
       case 0 =>
         drawWait()
       case 1 =>
+        drawInfo.clearCanvas()
         draw(offsetTime)
       case 2 =>
         drawGameOver()
@@ -152,8 +153,8 @@ class GameHolder {
       }
       val position=data.playerDetails.find(_.id==grid.myId).get.position//1上，0下
       if(other.size==1) othername=other.head
-      drawBpView.clearCanvas()
-      drawBpView.drawBackGround()
+//      drawBpView.clearCanvas()
+//      drawBpView.drawBackGround()
       drawGameView.drawGrid(grid.myId,data,offsetTime,firstCome)
       drawGameView.drawWarning(position)
       drawInfo.drawRoomInfo(grid.roomId.toString,myName,othername,myScore,oppScore)
@@ -165,9 +166,9 @@ class GameHolder {
   }
 
   def drawWait()={
-    drawBpView.clearCanvas()
-    drawBpView.drawBackGround()
-    drawBpView.drawGameWait()
+//    drawBpView.clearCanvas()
+//    drawBpView.drawBackGround()
+    drawInfo.drawGameWait()
   }
 
   def drawReady()={

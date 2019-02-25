@@ -59,6 +59,7 @@ object Dependencies {
   val essf = "org.seekloud" %% "essf" % "0.0.1-beta2"
   val byteobject = "org.seekloud" %% "byteobject" % "0.1.2"
   val scalaFx = "org.scalafx" %% "scalafx" % "10.0.2-R15"
+//  val h2sql = "com.h2database" % "h2" % "1.4.186"
   
 
 
@@ -83,7 +84,8 @@ object Dependencies {
         Dependencies.ehcache,
         Dependencies.essf,
         Dependencies.byteobject,
-        Dependencies.scalaFx
+        Dependencies.scalaFx ,
+//        Dependencies.h2sql
         // "com.lihaoyi" %% "upickle" % "0.6.6"
       )
 

@@ -12,6 +12,7 @@ object MainPage extends PageSwitcher{
   private val currentPage: Rx[Elem] = currentHashVar.map{
     case "HiBrick" :: Nil => new IndexPage().render
     case "playGame" :: playerId :: playerName :: roomId :: Nil => new GamePage(playerId, playerName, roomId.toLong).render
+    case "SignUp" :: Nil => new SignUpPage().render
     case x =>
       println(s"unknown hash: $x")
       <div>Error Page</div>

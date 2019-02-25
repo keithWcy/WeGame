@@ -6,6 +6,9 @@ import org.scalajs.dom.html.Document
 
 object Routes {
 
+  val userUrl = "/WeGame/user"
+  val signUpUrL = userUrl+"/signUp"
+
   object GameRoute{
     private val baseUrl = "/WeGame/brick/game"
 
