@@ -25,6 +25,7 @@ class GameHolder {
   private[this] val drawBpView=DrawGame(BpCtx,BpCanvas,window)
   private[this] val drawInfo=DrawGame(InfoCtx,InfoCanvas,window)
   private[this] var gameState = 0 //0为等待，1为玩游戏，2为游戏结束
+  private[this] var gameOpen = 1
 
   val grid = new GameClient()
 
@@ -136,7 +137,9 @@ class GameHolder {
 
   def draw(offsetTime:Long)={
     if(webSocketClient.getWsState){
+      println("data")
       val data=grid.getGridData(grid.myId)
+      println(data)
       val myName=data.playerDetails.filter(_.id==grid.myId).map(_.name).head
       var othername="等待中"
       val other=data.playerDetails.filterNot(_.id==grid.myId).map(_.name)
@@ -184,6 +187,7 @@ class GameHolder {
     start()//gameloop + gamerender
     //用户行为：使用键盘or鼠标(观战模式不响应键盘鼠标事件）
     addActionListenEvent
+    addMouseListenEvent()
   }
 
   def addActionListenEvent = {
@@ -193,12 +197,8 @@ class GameHolder {
       (e: dom.KeyboardEvent) => {
                 println(s"keydown: ${e.keyCode} ${gameState} ")
         if (keyInFlame == false) {
-          if (gameState == 0) {
-            if (e.keyCode == KeyCode.Space) {
-              gameState = 1
-              addMouseListenEvent()
-              keyInFlame = true
-            }
+          if (gameState == 1) {
+            keyInFlame = true
           }
         }
       }
@@ -208,7 +208,6 @@ class GameHolder {
   def addMouseListenEvent()={
     InfoCanvas.onclick = { (e: dom.MouseEvent) =>
       //球在木板上时选择方向发射
-      println("mouse click")
       if(grid.playerMap.get(grid.myId).isDefined && ballMove){
         val pageX = e.pageX
         val pageY = e.pageY
@@ -254,6 +253,14 @@ class GameHolder {
         println("获取全量数据  get ALL GRID===================")
         syncGridData = Some(data)
         justSynced = true
+        if(syncGridData.isDefined){
+          if(syncGridData.get.brickDetails.nonEmpty && gameOpen<=3){
+            gameOpen += 1
+            if(gameOpen==3){
+              gameState = 1
+            }
+          }
+        }
 
       case Protocol.RoomId(id) =>
         grid.roomId = id

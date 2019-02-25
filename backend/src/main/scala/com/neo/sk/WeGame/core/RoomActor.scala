@@ -75,10 +75,10 @@ object RoomActor {
           playerMap.put(playerInfo.playerId,playerInfo.playerName)
           subscribersMap.put(playerInfo.playerId, userActor)
           val position = if(playerMap.keys.size==1) 0 else 1 //0表示第一个加入，1表示第二个加入
-          userActor ! JoinRoomSuccess(roomId, ctx.self)
           grid.addPlayer(playerInfo.playerId, playerInfo.playerName,position)
           dispatchTo(subscribersMap)(playerInfo.playerId, Protocol.Id(playerInfo.playerId))
           dispatchTo(subscribersMap)(playerInfo.playerId,Protocol.RoomId(roomId))
+          userActor ! JoinRoomSuccess(roomId, ctx.self)
           Behaviors.same
 
         case RoomActor.KeyR(id, keyCode,frame) =>

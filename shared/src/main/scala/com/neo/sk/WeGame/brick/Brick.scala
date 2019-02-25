@@ -124,13 +124,25 @@ trait Brick {
             val bricky=brick.y
             var newbrickCount=brick.count
             val distance=sqrt(pow(brickx-newX,2)+pow(bricky-newY,2))
-            if(distance<brick.length){
-              newspeedX = -newspeedX
-              newspeedY = -newspeedY
-              if(brick.id==player.id){
-                newbrickCount -= 1
-              }else if(brick.id!=player.id){
-                newbrickCount += 1
+            if(ball.x <= brickx){
+                if(distance<ball.radius*1.4){
+                  newspeedX = -newspeedX
+                  newspeedY = -newspeedY
+                  if(brick.id==player.id){
+                    newbrickCount -= 1
+                  }else if(brick.id!=player.id){
+                    newbrickCount += 1
+                  }
+                }
+            }else {
+              if(distance<brick.length*1.1){
+                newspeedX = -newspeedX
+                newspeedY = -newspeedY
+                if(brick.id==player.id){
+                  newbrickCount -= 1
+                }else if(brick.id!=player.id){
+                  newbrickCount += 1
+                }
               }
             }
             brick.copy(count=newbrickCount)

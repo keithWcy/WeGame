@@ -40,7 +40,7 @@ case class DrawGame(ctx:CanvasRenderingContext2D,
   }
 
   def drawGameWait()={
-    val txt="已加入房间，按空格准备"
+    val txt="已加入房间，等待数据加载"
     ctx.fillStyle = "rgba(99, 99, 99, 1)"
     ctx.font = "24px Helvetica"
     ctx.fillText(txt,width/2-150,height/2-30)
