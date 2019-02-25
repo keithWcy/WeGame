@@ -7,9 +7,10 @@ import com.neo.sk.WeGame.brick.Protocol.{GameMessage, GridDataSync, MC}
 import com.neo.sk.WeGame.front.common.Routes.GameRoute
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
-import org.scalajs.dom.raw.{ErrorEvent, Event}
+import org.scalajs.dom.raw.{ErrorEvent, Event, HTMLElement}
 import com.neo.sk.WeGame.brick.GameConfig._
 import com.neo.sk.WeGame.brick.Protocol
+import javax.swing.text.html.HTML
 import org.scalajs.dom.ext.KeyCode
 
 class GameHolder {
@@ -108,7 +109,7 @@ class GameHolder {
       var oppScore=0
       var oppId=""
       val oppPlayer=grid.playerMap.filterNot(i=>i._1==grid.myId).keys
-      if(!oppId.isEmpty) oppId=oppPlayer.toList.head
+      if(oppPlayer.nonEmpty) oppId=oppPlayer.head
       data.playerDetails.find(_.id==grid.myId).get.bricks.foreach(i=>myScore+=i.count)
       data.playerDetails.find(_.id!=grid.myId) match{
         case Some(player) =>
@@ -128,11 +129,7 @@ class GameHolder {
           drawInfo.drawResult(myScore,oppScore,false)
         } else if(!data.ballDetails.exists(_.id==oppId)){
           drawInfo.drawResult(myScore,oppScore,true)
-        } else if(myScore>oppScore){
-          drawInfo.drawResult(myScore,oppScore,false)
-        } else if(myScore<oppScore){
-          drawInfo.drawResult(myScore,oppScore,true)
-        }else drawInfo.drawBalance(myScore,oppScore)
+        }
       }else drawInfo.drawOppLeave()
     }
   }
@@ -272,7 +269,6 @@ class GameHolder {
         }
 
       case Protocol.gameOver(roomId,loserId)=>
-        println("gameOver")
         gameState = 2
 //        grid.playerMap=Map.empty[String,player]
 //        grid.ballList=List()

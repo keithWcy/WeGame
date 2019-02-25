@@ -42,7 +42,8 @@ trait HttpService extends SnakeService with ChatService with ResourceService wit
           netSnakeRoute ~
           chatRoute ~
           resourceRoutes ~
-          brickRoute
+          brickRoute ~
+          UserRoute
       }
     }
 
